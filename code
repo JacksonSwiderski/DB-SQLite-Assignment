@@ -1,1 +1,38 @@
-print('Hello world!')
+import sqlite3
+
+create_beans_table = 'CREATE TABLE beans (id INT PRIMARY KEY, name TXTm method TXTm rating INT'
+
+insert_bean = 'INSERT INTO beans (name, method, rating) VALUES (?, ?, ?):'
+
+get_all_beans = 'SELECT * From beans:'
+get_beans_by_name = 'SELECT * FROM beans WHERE name = ?:'
+get_best_prep_for_bean = '''
+    SELECT * FROM beans
+    WHERE name = ?
+    ORDER BY rating DESC
+    LIMIT 1:
+'''
+
+
+
+
+
+def connect():
+    return sqlite3.connect('data.db')
+
+def create_tables(connection):
+    with connection:
+        connection.execute(create_beans_table)
+
+def add_bean(connection, name, method, rating):
+    with connection:
+        connection.execute(insert_bean, (name, method, rating))
+
+def get_all_beans(connection):
+    with connection:
+        return connection.execute(get_all_beans).fetchall()
+
+def get_beans_by_name(connection, name):
+    with connection:
+        return connection.execute(get_beans_by_name, (name,)).fetchall()
+
