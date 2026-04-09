@@ -1,20 +1,20 @@
 import sqlite3
 
-create_beans_table = 'CREATE TABLE beans (id INT PRIMARY KEY, name TXTm method TXTm rating INT'
+CREATE_BEANS_TABLE = "CREATE TABLE IF NOT EXISTS beans (id INTEGER PRIMARY KEY, name TEXT, method TEXT, rating INTEGER);"
 
-insert_bean = 'INSERT INTO beans (name, method, rating) VALUES (?, ?, ?):'
+INSERT_BEAN = 'INSERT INTO beans (name, method, rating) VALUES (?, ?, ?);'
 
-get_all_beans = 'SELECT * From beans:'
-get_beans_by_name = 'SELECT * FROM beans WHERE name = ?:'
-get_best_prep_for_bean = '''
+GET_ALL_BEANS = 'SELECT * FROM beans;'
+GET_BEANS_BY_NAME = 'SELECT * FROM beans WHERE name = ?;'
+GET_BEST_PREP_FOR_BEAN = '''
     SELECT * FROM beans
     WHERE name = ?
     ORDER BY rating DESC
-    LIMIT 1:
+    LIMIT 1;'''
+DELETE_BEAN_BY_ID = '''
+DELETE FROM beans
+WHERE id = ?
 '''
-
-
-
 
 
 def connect():
@@ -22,17 +22,28 @@ def connect():
 
 def create_tables(connection):
     with connection:
-        connection.execute(create_beans_table)
+        connection.execute(CREATE_BEANS_TABLE)
 
 def add_bean(connection, name, method, rating):
     with connection:
-        connection.execute(insert_bean, (name, method, rating))
+        connection.execute(INSERT_BEAN, (name, method, rating))
 
 def get_all_beans(connection):
     with connection:
-        return connection.execute(get_all_beans).fetchall()
+        return connection.execute(GET_ALL_BEANS).fetchall()
 
 def get_beans_by_name(connection, name):
     with connection:
-        return connection.execute(get_beans_by_name, (name,)).fetchall()
+        return connection.execute(GET_BEANS_BY_NAME, (name,)).fetchall()
+
+def get_best_prep_for_bean(connection, name):
+    with connection:
+        return connection.execute(GET_BEST_PREP_FOR_BEAN, (name,)).fetchone()
+
+def delete_bean_by_id(connection, id):
+    with connection:
+        connection.execute(DELETE_BEAN_BY_ID, (id,))
+
+
+
 
