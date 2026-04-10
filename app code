@@ -1,16 +1,31 @@
 import database
 
+for i in range(1, 4):
+    user_name = input('Enter your username: ')
+    password = input('Enter your password: ')
+
+    if user_name == 'Jackson' and password == '1234':    # <-- Horrible password. Not my real one.
+        print('Welcome, Jackson')
+        break
+    else:
+        print('Incorrect')
+        if i == 3:
+            print('Access denied. Quitting...')
+            quit()
 
 MENU_PROMPT = ''' ---SQLite Database---
 
 Please choose one of these options:
 
-1) Add a new bean.
-2) See all beans.
-3) Find a bean by name.
-4) See which preparation method is best for a bean.
-5) Delete a bean by id number.
-6) Exit.
+1) Add a new game.
+2) See all games.
+3) Find a game by name.
+4) Find games by genre.
+5) Find games by year range.
+6) See game genres.
+7) Delete a game by id number.
+8) Delete a game by name.
+9) Exit.
 
 Your selection: '''
 
@@ -19,38 +34,84 @@ def menu():
     connection = database.connect()
     database.create_tables(connection)
 
-    while(user_input := input(MENU_PROMPT)) != '6':
+    while(user_input := input(MENU_PROMPT)) != '9':
         if user_input == '1':
-            name = input('Enter bean name: ')
-            method = input("Enter how you've prepared it: ")
-            rating = int(input('Enter your rating score (1-100): '))
+            try:
+                name = input('Enter game name: ')
+                genre = input("Enter the genre: ")
+                year = int(input('Enter the release year: '))
 
-            database.add_bean(connection, name, method, rating)
+                database.add_game(connection, name, genre, year)
+            except:
+                print('Invalid input. Please try again.')
         elif user_input == '2':
-            beans = database.get_all_beans(connection)
+            games = database.get_all_games(connection)
 
-            for bean in beans:
-                print(f'{bean[1]} ({bean[2]}) - {bean[3]}/100')
+            for game in games:
+                print(f'{game[1]} ({game[2]}) - {game[3]}')
         elif user_input == '3':
-            name = input('Enter bean name to find: ')
-            beans = database.get_beans_by_name(connection, name)
+            name = input('Enter game name to find: ')
+            games = database.get_games_by_name(connection, name)
 
-            for bean in beans:
-                print(f'{bean[1]} ({bean[2]}) - {bean[3]}/100')
+            for game in games:
+                print(f'{game[1]} ({game[2]}) - {game[3]}')
+
         elif user_input == '4':
-            name = input('Enter bean name to find: ')
-            best_method = database.get_best_prep_for_bean(connection, name)
+            genre = input('Enter the game genre: ')
+            games = database.get_games_by_genre(connection, genre)
 
-            print(f'The best preparation method for {name} is: {best_method[2]}')
+            for game in games:
+                print(f'{game[1]} ({game[2]}) - {game[3]}')
+
         elif user_input == '5':
-            beans = database.get_all_beans(connection)
+            try:
+                min_year = int(input('Enter minimum year: '))
+                max_year = int(input('Enter maximum year: '))
 
-            for bean in beans:
-                print(bean)
+                games = database.get_games_by_year_range(
+                    connection, min_year, max_year
+                )
 
-            id = int(input('Enter the ID of the bean to delete: '))
-            database.delete_bean_by_id(connection, id)
-            print(f'Bean ID {id} deleted.')
+                if min_year < max_year:
+                    if games:
+                        for game in games:
+                            print(game)
+                    else:
+                        print('No games found.')
+                elif min_year > max_year:
+                    print('Please enter a valid range.')
+
+            except:
+                print('Invalid input. Please try again.')
+
+        elif user_input == '6':
+            name = input('Enter game name to find: ')
+            best_genre = database.get_game_genre(connection, name)
+
+            if best_genre:
+                print(f'The genre of {name} is: {best_genre[2]}')
+            else:
+                print('Game name not found.')
+
+        elif user_input == '7':
+            games = database.get_all_games(connection)
+
+            for game in games:
+                print(game)
+
+            id = int(input('Enter the ID of the game to delete: '))
+            database.delete_game_by_id(connection, id)
+            print(f'game ID {id} deleted.')
+            
+        elif user_input == '8':
+            games = database.get_all_games(connection)
+
+            for game in games:
+                print(game)
+
+            name = input('Enter the name of the game to delete: ')
+            database.delete_game_by_name(connection, name)
+            print(f'game name {name} deleted.')
         else:
             print('Invalid input, please try again!')
 
