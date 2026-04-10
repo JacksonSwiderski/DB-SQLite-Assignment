@@ -1,19 +1,27 @@
 import sqlite3
 
-CREATE_BEANS_TABLE = "CREATE TABLE IF NOT EXISTS beans (id INTEGER PRIMARY KEY, name TEXT, method TEXT, rating INTEGER);"
+CREATE_GAMES_TABLE = "CREATE TABLE IF NOT EXISTS games (id INTEGER PRIMARY KEY, name TEXT, genre TEXT, year INTEGER);"
 
-INSERT_BEAN = 'INSERT INTO beans (name, method, rating) VALUES (?, ?, ?);'
+INSERT_GAME = 'INSERT INTO games (name, genre, year) VALUES (?, ?, ?);'
 
-GET_ALL_BEANS = 'SELECT * FROM beans;'
-GET_BEANS_BY_NAME = 'SELECT * FROM beans WHERE name = ?;'
-GET_BEST_PREP_FOR_BEAN = '''
-    SELECT * FROM beans
+GET_ALL_GAMES = 'SELECT * FROM games;'
+GET_GAMES_BY_NAME = 'SELECT * FROM games WHERE name = ?;'
+GET_GAMES_BY_GENRE = 'SELECT * FROM games WHERE genre =?;'
+GET_GAMES_BY_YEAR_RANGE = 'SELECT * FROM games WHERE year BETWEEN ? AND ?'
+GET_GAME_GENRE = '''
+    SELECT * FROM games
     WHERE name = ?
-    ORDER BY rating DESC
+    ORDER BY year DESC
     LIMIT 1;'''
-DELETE_BEAN_BY_ID = '''
-DELETE FROM beans
+
+DELETE_GAME_BY_ID = '''
+DELETE FROM games2
 WHERE id = ?
+'''
+
+DELETE_GAME_BY_NAME = '''
+DELETE FROM games
+WHERE name = ?
 '''
 
 
@@ -22,27 +30,39 @@ def connect():
 
 def create_tables(connection):
     with connection:
-        connection.execute(CREATE_BEANS_TABLE)
+        connection.execute(CREATE_GAMES_TABLE)
 
-def add_bean(connection, name, method, rating):
+def add_game(connection, name, genre, year):
     with connection:
-        connection.execute(INSERT_BEAN, (name, method, rating))
+        connection.execute(INSERT_GAME, (name, genre, year))
 
-def get_all_beans(connection):
+def get_all_games(connection):
     with connection:
-        return connection.execute(GET_ALL_BEANS).fetchall()
+        return connection.execute(GET_ALL_GAMES).fetchall()
 
-def get_beans_by_name(connection, name):
+def get_games_by_name(connection, name):
     with connection:
-        return connection.execute(GET_BEANS_BY_NAME, (name,)).fetchall()
+        return connection.execute(GET_GAMES_BY_NAME, (name,)).fetchall()
 
-def get_best_prep_for_bean(connection, name):
+def get_games_by_genre(connection, genre):
     with connection:
-        return connection.execute(GET_BEST_PREP_FOR_BEAN, (name,)).fetchone()
+        return connection.execute(GET_GAMES_BY_GENRE, (genre,)).fetchall()
 
-def delete_bean_by_id(connection, id):
+def get_games_by_year_range(connection, min_year, max_year):
     with connection:
-        connection.execute(DELETE_BEAN_BY_ID, (id,))
+        return connection.execute(GET_GAMES_BY_YEAR_RANGE, (min_year, max_year)).fetchall()
+
+def get_game_genre(connection, name):
+    with connection:
+        return connection.execute(GET_GAME_GENRE, (name,)).fetchone()
+
+def delete_game_by_id(connection, id):
+    with connection:
+        connection.execute(DELETE_GAME_BY_ID, (id,))
+
+def delete_game_by_name(connection, name):
+    with connection:
+        connection.execute(DELETE_GAME_BY_NAME, (name,))
 
 
 
